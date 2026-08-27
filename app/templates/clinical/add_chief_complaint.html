@@ -1,0 +1,122 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Add Chief Complaint — iHIS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="text-secondary mb-1">
+        Electronic Patient Record
+    </div>
+
+    <h1 class="h2 mb-1">
+        Record Chief Complaint
+    </h1>
+
+    <p class="text-secondary mb-0">
+        Encounter #{{ encounter.id }}
+        — {{ patient.full_name }}
+        — {{ patient.mrn }}
+    </p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card ihis-card">
+            <div class="card-body">
+                <form method="post">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.complaint.label(class="form-label") }}
+
+                        {{ form.complaint(
+                            class="form-control",
+                            rows="4",
+                            placeholder="Describe the principal complaint"
+                        ) }}
+
+                        {% for error in form.complaint.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.onset.label(class="form-label") }}
+
+                            {{ form.onset(
+                                class="form-control",
+                                placeholder="e.g. 3 days ago"
+                            ) }}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            {{ form.duration.label(class="form-label") }}
+
+                            {{ form.duration(
+                                class="form-control",
+                                placeholder="e.g. 3 days"
+                            ) }}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form.severity.label(class="form-label") }}
+
+                        {{ form.severity(class="form-select") }}
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        {{ form.submit(class="btn btn-primary") }}
+
+                        <a
+                            href="{{ url_for(
+                                'clinical.encounter_detail',
+                                encounter_id=encounter.id
+                            ) }}"
+                            class="btn btn-outline-secondary"
+                        >
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="alert alert-warning mt-4 mb-0">
+            <strong>Educational prototype:</strong>
+            use synthetic or de-identified clinical information only.
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card ihis-card">
+            <div class="card-body">
+                <h2 class="h5">Encounter Context</h2>
+
+                <p class="mb-1">
+                    <strong>Patient:</strong><br>
+                    {{ patient.full_name }}
+                </p>
+
+                <p class="mb-1">
+                    <strong>MRN:</strong><br>
+                    {{ patient.mrn }}
+                </p>
+
+                <p class="mb-1">
+                    <strong>Encounter:</strong><br>
+                    #{{ encounter.id }} — {{ encounter.encounter_type }}
+                </p>
+
+                <p class="mb-0">
+                    <strong>Presenting complaint:</strong><br>
+                    {{ encounter.presenting_complaint or "Not recorded" }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

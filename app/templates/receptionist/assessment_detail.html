@@ -1,0 +1,367 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Receptionist AI Assessment — iHIS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <div class="text-secondary mb-1">
+            Receptionist AI
+        </div>
+
+        <h1 class="h2 mb-1">
+            Intake Assessment #{{ assessment.id }}
+        </h1>
+
+        <p class="text-secondary mb-0">
+            {{ patient.full_name }} — {{ patient.mrn }}
+        </p>
+    </div>
+
+    <a
+        href="{{ url_for(
+            'patients.profile',
+            patient_id=patient.id
+        ) }}"
+        class="btn btn-outline-secondary"
+    >
+        Patient Profile
+    </a>
+</div>
+
+{% if review %}
+    {% if review.decision == "Accepted" %}
+        <div class="alert alert-success">
+            <strong>Human review completed — Accepted.</strong>
+            The reviewer retained the AI routing recommendation.
+        </div>
+    {% elif review.decision == "Modified" %}
+        <div class="alert alert-info">
+            <strong>Human review completed — Modified.</strong>
+            The reviewer changed the AI recommendation.
+        </div>
+    {% elif review.decision == "Rejected" %}
+        <div class="alert alert-danger">
+            <strong>Human review completed — Rejected.</strong>
+            The reviewer rejected the AI recommendation.
+        </div>
+    {% endif %}
+{% else %}
+    <div class="alert alert-warning">
+        <strong>Awaiting human review.</strong>
+        This output must not be treated as an autonomous clinical decision.
+
+        <div class="mt-3">
+            <a
+                href="{{ url_for(
+                    'receptionist.review_assessment',
+                    assessment_id=assessment.id
+                ) }}"
+                class="btn btn-warning"
+            >
+                Review AI Recommendation
+            </a>
+        </div>
+    </div>
+{% endif %}
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card ihis-card mb-4">
+            <div class="card-body">
+                <h2 class="h5 mb-4">
+                    Routing Recommendation
+                </h2>
+
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">
+                        Suggested service
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>
+                            {{
+                                assessment.output_data[
+                                    "recommended_service"
+                                ]
+                            }}
+                        </strong>
+                    </dd>
+
+                    <dt class="col-sm-4">
+                        Urgency
+                    </dt>
+                    <dd class="col-sm-8">
+                        {{
+                            assessment.output_data[
+                                "urgency"
+                            ]
+                        }}
+                    </dd>
+
+                    <dt class="col-sm-4">
+                        Human review
+                    </dt>
+                    <dd class="col-sm-8">
+                        Required
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card ihis-card mb-4">
+            <div class="card-body">
+                <h2 class="h5">
+                    Explanation
+                </h2>
+
+                <p class="mb-0">
+                    {{ assessment.explanation }}
+                </p>
+            </div>
+        </div>
+
+        <div class="card ihis-card mb-4">
+            <div class="card-body">
+                <h2 class="h5">
+                    Basic Guidance & Appointment Information
+                </h2>
+
+                <p class="mb-3">
+                    <strong>Guidance:</strong><br>
+                    {{
+                        assessment.output_data.get(
+                            "basic_guidance",
+                            "Guidance was not stored for this earlier assessment."
+                        )
+                    }}
+                </p>
+
+                <p class="mb-0">
+                    <strong>Appointment:</strong><br>
+                    {{
+                        assessment.output_data.get(
+                            "appointment_information",
+                            "Appointment information was not stored for this earlier assessment."
+                        )
+                    }}
+                </p>
+            </div>
+        </div>
+        <div class="card ihis-card mb-4">
+            <div class="card-body">
+                <h2 class="h5">
+                    Red-Flag Detection
+                </h2>
+
+                {% if assessment.output_data["red_flags"] %}
+                    {% for item in assessment.output_data["red_flags"] %}
+                        <div class="alert alert-danger mb-2">
+                            <strong>
+                                {{ item["red_flag"] }}
+                            </strong>
+
+                            <br>
+
+                            <span class="small">
+                                Matched:
+                                {{
+                                    item["matched_terms"]
+                                    | join(", ")
+                                }}
+                            </span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-secondary mb-0">
+                        No predefined red-flag pattern was detected.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card ihis-card">
+            <div class="card-body">
+                <h2 class="h5">
+                    Routing Evidence
+                </h2>
+
+                {% if assessment.output_data["routing_evidence"] %}
+                    <ul class="mb-0">
+                        {% for service, terms in
+                            assessment.output_data["routing_evidence"].items()
+                        %}
+                            <li>
+                                <strong>{{ service }}:</strong>
+                                {{ terms | join(", ") }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-secondary mb-0">
+                        Default routing rule was used.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card ihis-card mb-4">
+            <div class="card-body">
+                <h2 class="h5">
+                    Intake
+                </h2>
+
+                <p class="mb-2">
+                    <strong>Symptoms:</strong><br>
+                    {{
+                        assessment.input_data[
+                            "symptom_text"
+                        ]
+                    }}
+                </p>
+
+                <p class="mb-2">
+                    <strong>Duration:</strong><br>
+                    {{
+                        assessment.input_data[
+                            "symptom_duration"
+                        ]
+                        or "Not specified"
+                    }}
+                </p>
+
+                <p class="mb-0">
+                    <strong>Additional context:</strong><br>
+                    {{
+                        assessment.input_data[
+                            "additional_context"
+                        ]
+                        or "Not recorded"
+                    }}
+                </p>
+            </div>
+        </div>
+
+        <div class="card ihis-card">
+            <div class="card-body">
+                <h2 class="h5">
+                    AI Traceability
+                </h2>
+
+                <p class="mb-1">
+                    <strong>Model:</strong><br>
+                    {{ assessment.model_name }}
+                </p>
+
+                <p class="mb-1">
+                    <strong>Version:</strong><br>
+                    {{ assessment.model_version }}
+                </p>
+
+                <p class="mb-1">
+                    <strong>Generated by:</strong><br>
+                    {{ assessment.created_by.username }}
+                </p>
+
+                <p class="mb-0">
+                    <strong>Assessment ID:</strong><br>
+                    {{ assessment.id }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if review %}
+<div class="card ihis-card mt-4">
+    <div class="card-body">
+        <h2 class="h5">
+            Human Review Record
+        </h2>
+
+        <dl class="row mb-0">
+            <dt class="col-sm-4">
+                Decision
+            </dt>
+
+            <dd class="col-sm-8">
+                <strong>
+                    {{ review.decision }}
+                </strong>
+            </dd>
+
+            <dt class="col-sm-4">
+                Reviewer
+            </dt>
+
+            <dd class="col-sm-8">
+                {{ review.reviewer.username }}
+            </dd>
+
+            <dt class="col-sm-4">
+                Comments
+            </dt>
+
+            <dd class="col-sm-8">
+                {{ review.comments or "No comments recorded." }}
+            </dd>
+
+            {% if review.modified_output %}
+                <dt class="col-sm-4">
+                    Final service
+                </dt>
+
+                <dd class="col-sm-8">
+                    {{
+                        review.modified_output[
+                            "recommended_service"
+                        ]
+                    }}
+                </dd>
+
+                <dt class="col-sm-4">
+                    Final urgency
+                </dt>
+
+                <dd class="col-sm-8">
+                    {{
+                        review.modified_output[
+                            "urgency"
+                        ]
+                    }}
+                </dd>
+
+                <dt class="col-sm-4">
+                    Original AI output
+                </dt>
+
+                <dd class="col-sm-8">
+                    {{
+                        review.modified_output[
+                            "original_recommended_service"
+                        ]
+                    }}
+                    /
+                    {{
+                        review.modified_output[
+                            "original_urgency"
+                        ]
+                    }}
+                </dd>
+            {% endif %}
+        </dl>
+    </div>
+</div>
+{% endif %}
+<div class="alert alert-secondary mt-4">
+    {{
+        assessment.output_data[
+            "disclaimer"
+        ]
+    }}
+</div>
+{% endblock %}
+
+
+

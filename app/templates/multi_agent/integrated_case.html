@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Multi-Agent iHIS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="text-secondary">Multi-Agent AI</div>
+
+    <h1 class="h2">
+        Integrated Multi-Agent Clinical Case
+    </h1>
+
+    <p class="text-secondary">
+        {{ patient.full_name }} ? {{ patient.mrn }}
+    </p>
+
+    <form method="post">
+        {{ form.hidden_tag() }}
+        {{ form.submit(class="btn btn-primary") }}
+    </form>
+</div>
+
+{% if result %}
+
+<div class="card ihis-card mb-4">
+    <div class="card-body">
+        <h2 class="h4">Integrated Clinical Report</h2>
+
+        <ol class="mb-0">
+            {% for item in result.integrated_summary %}
+                <li>{{ item }}</li>
+            {% endfor %}
+        </ol>
+    </div>
+</div>
+
+<div class="card ihis-card mb-4">
+    <div class="card-body">
+        <h2 class="h4">Agent Communication Log</h2>
+
+        <ol class="mb-0">
+            {% for item in result.communication_log %}
+                <li>{{ item }}</li>
+            {% endfor %}
+        </ol>
+    </div>
+</div>
+
+<div class="row g-3">
+
+{% set agents = [
+    ("Receptionist AI", result.receptionist.recommended_service),
+    ("GP AI", result.gp.predicted_condition),
+    ("ICU AI", result.icu.status),
+    ("Radiologist AI", result.radiology.prediction),
+    ("Clinical Reasoning AI", result.reasoning.leading_diagnosis),
+    ("Emergency AI", result.emergency.triage),
+    ("Pharmacist AI", result.pharmacy.safety_status),
+    ("Psychiatrist AI", result.mental_health.depression_result),
+    ("Oncologist AI", result.oncology.leading_pathway or "No dominant pathway"),
+    ("Treatment Planning AI", result.treatment.recommended_strategy)
+] %}
+
+{% for name, value in agents %}
+<div class="col-md-6">
+    <div class="card ihis-card h-100">
+        <div class="card-body">
+            <h2 class="h5">{{ name }}</h2>
+            <p class="mb-0">{{ value }}</p>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<div class="col-md-12">
+    <div class="card ihis-card">
+        <div class="card-body">
+            <h2 class="h5">Patient Education AI</h2>
+
+            <p class="mb-0">
+                {{ result.education.answer }}
+            </p>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<div class="card ihis-card mt-4 mb-4">
+    <div class="card-body">
+        <h2 class="h5">Multi-Agent Traceability</h2>
+
+        <p class="mb-1">
+            <strong>System:</strong>
+            {{ result.system_name }}
+        </p>
+
+        <p class="mb-0">
+            <strong>Version:</strong>
+            {{ result.system_version }}
+        </p>
+    </div>
+</div>
+
+<div class="alert alert-warning">
+    {{ result.disclaimer }}
+</div>
+
+{% endif %}
+{% endblock %}

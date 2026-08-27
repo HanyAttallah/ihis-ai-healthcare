@@ -1,0 +1,131 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Start Encounter — iHIS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="text-secondary mb-1">
+        Electronic Patient Record
+    </div>
+
+    <h1 class="h2 mb-1">
+        Start Clinical Encounter
+    </h1>
+
+    <p class="text-secondary mb-0">
+        {{ patient.full_name }} — {{ patient.mrn }}
+    </p>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card ihis-card">
+            <div class="card-body">
+                <form method="post">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.encounter_type.label(
+                            class="form-label"
+                        ) }}
+
+                        {{ form.encounter_type(
+                            class="form-select"
+                        ) }}
+
+                        {% for error in form.encounter_type.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.department.label(
+                            class="form-label"
+                        ) }}
+
+                        {{ form.department(
+                            class="form-control",
+                            placeholder="e.g. General Medicine"
+                        ) }}
+
+                        {% for error in form.department.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form.presenting_complaint.label(
+                            class="form-label"
+                        ) }}
+
+                        {{ form.presenting_complaint(
+                            class="form-control",
+                            rows="4",
+                            placeholder="Brief reason for this encounter"
+                        ) }}
+
+                        {% for error in form.presenting_complaint.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        {{ form.submit(
+                            class="btn btn-primary"
+                        ) }}
+
+                        <a
+                            href="{{ url_for(
+                                'patients.profile',
+                                patient_id=patient.id
+                            ) }}"
+                            class="btn btn-outline-secondary"
+                        >
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="alert alert-warning mt-4 mb-0">
+            <strong>Educational prototype:</strong>
+            use synthetic or de-identified clinical information only.
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card ihis-card">
+            <div class="card-body">
+                <h2 class="h5">Patient</h2>
+
+                <p class="mb-1">
+                    <strong>MRN:</strong><br>
+                    {{ patient.mrn }}
+                </p>
+
+                <p class="mb-1">
+                    <strong>Name:</strong><br>
+                    {{ patient.full_name }}
+                </p>
+
+                <p class="mb-1">
+                    <strong>Age:</strong><br>
+                    {{ patient.age }}
+                </p>
+
+                <p class="mb-0">
+                    <strong>Sex:</strong><br>
+                    {{ patient.sex }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

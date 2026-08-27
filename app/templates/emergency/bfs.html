@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Emergency BFS AI ? iHIS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="text-secondary">
+        Emergency Physician AI
+    </div>
+
+    <h1 class="h2">
+        BFS Emergency Decision Support
+    </h1>
+
+    <p class="text-secondary">
+        {{ patient.full_name }} ? {{ patient.mrn }}
+    </p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card ihis-card">
+            <div class="card-body">
+                <h2 class="h5">
+                    Emergency Features
+                </h2>
+
+                <form method="post">
+                    {{ form.hidden_tag() }}
+
+                    {% for field in [
+                        form.chest_pain,
+                        form.dyspnea,
+                        form.sweating,
+                        form.nausea,
+                        form.tachycardia,
+                        form.hemoptysis,
+                        form.wheeze,
+                        form.chest_tightness,
+                        form.sudden_weakness,
+                        form.speech_difficulty,
+                        form.seizure,
+                        form.altered_consciousness,
+                        form.fever,
+                        form.hypotension,
+                        form.rash,
+                        form.swelling
+                    ] %}
+                        <div class="form-check mb-2">
+                            {{ field(class="form-check-input") }}
+                            {{ field.label(class="form-check-label") }}
+                        </div>
+                    {% endfor %}
+
+                    <div class="mt-4">
+                        {{ form.submit(
+                            class="btn btn-danger"
+                        ) }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        {% if result %}
+            {% if result.triage == "Emergency" %}
+                <div class="alert alert-danger">
+                    <h2 class="h4">
+                        Emergency Triage
+                    </h2>
+                    {{ result.overall_action }}
+                </div>
+            {% elif result.triage == "Urgent" %}
+                <div class="alert alert-warning">
+                    <h2 class="h4">
+                        Urgent Triage
+                    </h2>
+                    {{ result.overall_action }}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    {{ result.overall_action }}
+                </div>
+            {% endif %}
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">
+                        Leading Emergency Possibility
+                    </h2>
+
+                    <div class="h4">
+                        {{
+                            result.leading_possibility
+                            or "No predefined pathway matched"
+                        }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">
+                        Prioritized Diagnostic Possibilities
+                    </h2>
+
+                    {% if result.candidates %}
+                        <ol class="mb-0">
+                            {% for item in result.candidates %}
+                                <li class="mb-3">
+                                    <strong>
+                                        {{ item.condition }}
+                                    </strong>
+
+                                    <span class="badge
+                                        {% if item.priority == 'Emergency' %}
+                                            text-bg-danger
+                                        {% else %}
+                                            text-bg-warning
+                                        {% endif %}
+                                    ">
+                                        {{ item.priority }}
+                                    </span>
+
+                                    <div>
+                                        Match:
+                                        {{
+                                            "%.1f"|format(
+                                                item.normalized_score * 100
+                                            )
+                                        }}%
+                                    </div>
+
+                                    <div class="small text-secondary">
+                                        {{ item.recommended_action }}
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ol>
+                    {% else %}
+                        <p class="mb-0">
+                            No diagnostic possibility matched.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">
+                        BFS Traversal
+                    </h2>
+
+                    <p class="small text-secondary">
+                        Nodes explored level-by-level:
+                    </p>
+
+                    <ol class="mb-0">
+                        {% for node in result.bfs_visit_order %}
+                            <li>{{ node }}</li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">
+                        Algorithm Traceability
+                    </h2>
+
+                    <p class="mb-1">
+                        <strong>Algorithm:</strong>
+                        {{ result.algorithm }}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>System:</strong>
+                        {{ result.model_name }}
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>Version:</strong>
+                        {{ result.model_version }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="alert alert-secondary">
+                {{ result.disclaimer }}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                Select emergency features to explore the BFS diagnostic tree.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

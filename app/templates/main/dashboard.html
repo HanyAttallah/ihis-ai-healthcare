@@ -1,0 +1,77 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Dashboard — iHIS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h1 class="h2 mb-1">Dashboard</h1>
+
+        <p class="text-secondary mb-0">
+            Welcome, {{ current_user.username }}.
+        </p>
+    </div>
+
+    <span class="badge bg-primary fs-6">
+        {{ current_user.role.name }}
+    </span>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6 col-xl-4">
+        <div class="card ihis-card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Patient Registry</h5>
+
+                <p class="card-text text-secondary">
+                    Register patients, search records, and manage
+                    demographic information.
+                </p>
+
+                <span class="badge bg-secondary">
+                    Week 1
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+        <div class="card ihis-card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Electronic Patient Record</h5>
+
+                <p class="card-text text-secondary">
+                    Shared longitudinal record for encounters,
+                    observations, diagnoses and investigations.
+                </p>
+
+                <span class="badge bg-secondary">
+                    Week 1
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+        <div class="card ihis-card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Receptionist AI</h5>
+
+                <p class="card-text text-secondary">
+                    Structured intake, routing and urgent-triage
+                    support with human oversight.
+                </p>
+
+                <span class="badge bg-secondary">
+                    Week 1
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-info mt-4">
+    <strong>Current milestone:</strong>
+    Week 1 — Core Hospital Information System.
+</div>
+{% endblock %}

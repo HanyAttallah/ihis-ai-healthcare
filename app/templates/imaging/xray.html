@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Radiologist AI ? iHIS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="text-secondary">
+        Radiologist AI
+    </div>
+
+    <h1 class="h2">
+        Medical Imaging Analysis
+    </h1>
+
+    <p class="text-secondary">
+        {{ patient.full_name }} ? {{ patient.mrn }}
+    </p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card ihis-card">
+            <div class="card-body">
+                <h2 class="h5">
+                    Upload X-ray
+                </h2>
+
+                <form
+                    method="post"
+                    enctype="multipart/form-data"
+                >
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.image.label(
+                            class="form-label"
+                        ) }}
+
+                        {{ form.image(
+                            class="form-control"
+                        ) }}
+
+                        {% for error in form.image.errors %}
+                            <div class="text-danger small">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    {{ form.submit(
+                        class="btn btn-primary"
+                    ) }}
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        {% if result %}
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">
+                        AI Interpretation
+                    </h2>
+
+                    <p>
+                        <strong>Uploaded file:</strong>
+                        {{ filename }}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Prediction:</strong>
+                        {{ result.prediction }}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Model score:</strong>
+                        {{
+                            "%.1f"|format(
+                                result.score * 100
+                            )
+                        }}%
+                    </p>
+
+                    <p class="mb-0">
+                        {{ result.interpretation }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">
+                        Ranked Predictions
+                    </h2>
+
+                    <ol class="mb-0">
+                        {% for item in result.ranked_predictions %}
+                            <li>
+                                {{ item.label }} ?
+                                {{
+                                    "%.1f"|format(
+                                        item.probability * 100
+                                    )
+                                }}%
+                            </li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">
+                        AI Traceability
+                    </h2>
+
+                    <p class="mb-1">
+                        <strong>Model:</strong>
+                        {{ result.model_name }}
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>Version:</strong>
+                        {{ result.model_version }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="alert alert-warning">
+                {{ result.disclaimer }}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                Upload an educational X-ray image for analysis.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

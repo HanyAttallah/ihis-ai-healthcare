@@ -1,0 +1,50 @@
+[
+  {
+    "id": "pneumonia_overview",
+    "title": "Pneumonia",
+    "category": "Disease",
+    "content": "Pneumonia is an infection affecting the lungs. Common symptoms include cough, fever, sputum production, shortness of breath, chest discomfort, and fatigue. Evaluation may include clinical examination, oxygen saturation, chest radiography, and laboratory tests when clinically indicated."
+  },
+  {
+    "id": "diabetes_overview",
+    "title": "Type 2 diabetes mellitus",
+    "category": "Disease",
+    "content": "Type 2 diabetes mellitus is characterized by persistent elevation of blood glucose related to insulin resistance and impaired insulin secretion. Risk factors include excess weight, physical inactivity, family history, increasing age, and previous abnormal glucose levels. Monitoring commonly includes blood glucose and HbA1c."
+  },
+  {
+    "id": "uti_overview",
+    "title": "Urinary tract infection",
+    "category": "Disease",
+    "content": "A urinary tract infection may cause painful urination, urinary frequency, urgency, suprapubic discomfort, and sometimes fever. Urinalysis is commonly used during evaluation, and urine culture may be appropriate depending on the clinical situation."
+  },
+  {
+    "id": "gastroenteritis_overview",
+    "title": "Gastroenteritis",
+    "category": "Disease",
+    "content": "Gastroenteritis commonly causes diarrhea, vomiting, abdominal discomfort, nausea, and sometimes fever. Maintaining hydration is important. Medical assessment is appropriate when dehydration, persistent symptoms, blood in stool, severe pain, or other concerning features are present."
+  },
+  {
+    "id": "paracetamol",
+    "title": "Paracetamol",
+    "category": "Medication",
+    "content": "Paracetamol, also called acetaminophen, is commonly used to reduce fever and relieve mild to moderate pain. Excessive dosing can cause serious liver injury. Patients should follow the prescribed or labelled dose and avoid unintentionally combining multiple products that contain paracetamol."
+  },
+  {
+    "id": "metformin",
+    "title": "Metformin",
+    "category": "Medication",
+    "content": "Metformin is commonly used in the management of type 2 diabetes. It helps reduce hepatic glucose production and improve insulin sensitivity. Gastrointestinal adverse effects can occur. Renal function and the patient's clinical circumstances should be considered by the treating clinician."
+  },
+  {
+    "id": "amoxicillin",
+    "title": "Amoxicillin",
+    "category": "Medication",
+    "content": "Amoxicillin is a penicillin-class antibiotic used for susceptible bacterial infections. It does not treat viral infections. Important considerations include allergy history and appropriate antibiotic selection by a healthcare professional."
+  },
+  {
+    "id": "patient_safety",
+    "title": "When to seek urgent medical care",
+    "category": "Safety",
+    "content": "Urgent medical assessment may be required for severe breathing difficulty, severe chest pain, loss of consciousness, seizures, uncontrolled bleeding, severe dehydration, sudden neurological symptoms, or rapid clinical deterioration."
+  }
+]

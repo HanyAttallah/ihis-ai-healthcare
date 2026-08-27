@@ -1,0 +1,311 @@
+﻿{% extends "base.html" %}
+
+{% block title %}{{ patient.mrn }} — iHIS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <div class="text-secondary mb-1">
+            Patient Profile
+        </div>
+
+        <h1 class="h2 mb-1">
+            {{ patient.full_name }}
+        </h1>
+
+        <div>
+            <span class="badge bg-primary">
+                {{ patient.mrn }}
+            </span>
+
+            {% if patient.is_active %}
+                <span class="badge bg-success">
+                    Active
+                </span>
+            {% else %}
+                <span class="badge bg-secondary">
+                    Inactive
+                </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a
+            href="{{ url_for(
+                'clinical.start_encounter',
+                patient_id=patient.id
+            ) }}"
+            class="btn btn-primary"
+        >
+            Start Encounter
+        </a>
+
+        {% if current_user.role.name in ["Administrator", "Receptionist"] %}
+            <a
+                href="{{ url_for(
+                    'receptionist.intake',
+                    patient_id=patient.id
+                ) }}"
+                class="btn btn-outline-primary"
+            >
+                Receptionist AI
+            </a>
+        {% endif %}
+
+        {% if current_user.role.name in ["Administrator", "Doctor"] %}
+            <a
+                href="{{ url_for(
+                    'mental_health.assessment',
+                    patient_id=patient.id
+                ) }}"
+                class="btn btn-outline-primary"
+            >
+                Psychiatrist AI
+            </a>
+        {% endif %}
+
+        <a
+            href="{{ url_for('patients.index') }}"
+            class="btn btn-outline-secondary"
+        >
+            Back to Registry
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card ihis-card h-100">
+            <div class="card-body">
+                <h2 class="h5 mb-4">
+                    Demographic Information
+                </h2>
+
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">
+                        Medical Record Number
+                    </dt>
+                    <dd class="col-sm-8">
+                        {{ patient.mrn }}
+                    </dd>
+
+                    <dt class="col-sm-4">
+                        Full name
+                    </dt>
+                    <dd class="col-sm-8">
+                        {{ patient.full_name }}
+                    </dd>
+
+                    <dt class="col-sm-4">
+                        Date of birth
+                    </dt>
+                    <dd class="col-sm-8">
+                        {{ patient.date_of_birth.isoformat() }}
+                    </dd>
+
+                    <dt class="col-sm-4">
+                        Age
+                    </dt>
+                    <dd class="col-sm-8">
+                        {{ patient.age }}
+                    </dd>
+
+                    <dt class="col-sm-4">
+                        Sex
+                    </dt>
+                    <dd class="col-sm-8">
+                        {{ patient.sex }}
+                    </dd>
+
+                    <dt class="col-sm-4">
+                        Phone
+                    </dt>
+                    <dd class="col-sm-8">
+                        {{ patient.phone or "Not recorded" }}
+                    </dd>
+
+                    <dt class="col-sm-4">
+                        Email
+                    </dt>
+                    <dd class="col-sm-8">
+                        {{ patient.email or "Not recorded" }}
+                    </dd>
+
+                    <dt class="col-sm-4">
+                        Address
+                    </dt>
+                    <dd class="col-sm-8">
+                        {{ patient.address or "Not recorded" }}
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card ihis-card mb-4">
+            <div class="card-body">
+                <h2 class="h5">
+                    Emergency Contact
+                </h2>
+
+                <p class="mb-1">
+                    <strong>Name:</strong><br>
+                    {{
+                        patient.emergency_contact_name
+                        or "Not recorded"
+                    }}
+                </p>
+
+                <p class="mb-0">
+                    <strong>Phone:</strong><br>
+                    {{
+                        patient.emergency_contact_phone
+                        or "Not recorded"
+                    }}
+                </p>
+            </div>
+        </div>
+
+        <div class="card ihis-card">
+            <div class="card-body">
+                <h2 class="h5">
+                    Record Metadata
+                </h2>
+
+                <p class="mb-1">
+                    <strong>Created by:</strong><br>
+                    {{ patient.created_by.username }}
+                </p>
+
+                <p class="mb-0">
+                    <strong>Record ID:</strong><br>
+                    {{ patient.id }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card ihis-card mt-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h2 class="h5 mb-1">
+                    Encounter History
+                </h2>
+
+                <p class="text-secondary mb-0">
+                    Longitudinal clinical encounters for this patient.
+                </p>
+            </div>
+
+            <span class="badge bg-secondary">
+                {{ encounters|length }}
+                encounter{% if encounters|length != 1 %}s{% endif %}
+            </span>
+        </div>
+
+        {% if encounters %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Encounter</th>
+                            <th>Type</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th>Started</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for encounter in encounters %}
+                            <tr>
+                                <td>
+                                    #{{ encounter.id }}
+                                </td>
+
+                                <td>
+                                    {{ encounter.encounter_type }}
+                                </td>
+
+                                <td>
+                                    {{
+                                        encounter.department
+                                        or "Not specified"
+                                    }}
+                                </td>
+
+                                <td>
+                                    {% if encounter.status == "Open" %}
+                                        <span class="badge bg-success">
+                                            Open
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">
+                                            {{ encounter.status }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {{
+                                        encounter.started_at.strftime(
+                                            "%Y-%m-%d %H:%M"
+                                        )
+                                    }}
+                                </td>
+
+                                <td class="text-end">
+                                    <a
+                                        href="{{ url_for(
+                                            'clinical.encounter_detail',
+                                            encounter_id=encounter.id
+                                        ) }}"
+                                        class="btn btn-outline-primary btn-sm"
+                                    >
+                                        Open
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="border rounded p-4 text-center bg-light">
+                <h3 class="h6">
+                    No clinical encounters yet
+                </h3>
+
+                <p class="text-secondary mb-3">
+                    Start the first encounter to begin the longitudinal EPR.
+                </p>
+
+                <a
+                    href="{{ url_for(
+                        'clinical.start_encounter',
+                        patient_id=patient.id
+                    ) }}"
+                    class="btn btn-primary btn-sm"
+                >
+                    Start First Encounter
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="alert alert-info mt-4">
+    <strong>Electronic Patient Record:</strong>
+    encounters are linked longitudinally to this patient.
+    Structured complaints, vital signs, diagnoses,
+    investigations and AI assessments will be recorded
+    within individual encounters.
+</div>
+{% endblock %}
+
+

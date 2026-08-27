@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Clinical Pharmacist AI ? iHIS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="text-secondary">
+        Clinical Pharmacist AI
+    </div>
+
+    <h1 class="h2">
+        Medication Safety System
+    </h1>
+
+    <p class="text-secondary">
+        {{ patient.full_name }} ? {{ patient.mrn }}
+    </p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card ihis-card">
+            <div class="card-body">
+                <form method="post">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.condition.label(
+                            class="form-label"
+                        ) }}
+
+                        {{ form.condition(
+                            class="form-select"
+                        ) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.current_medications.label(
+                            class="form-label"
+                        ) }}
+
+                        {{ form.current_medications(
+                            class="form-control",
+                            placeholder="warfarin, ibuprofen"
+                        ) }}
+
+                        <div class="form-text">
+                            Enter generic medication names separated by commas.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.allergies.label(
+                            class="form-label"
+                        ) }}
+
+                        {{ form.allergies(
+                            class="form-control",
+                            placeholder="e.g. penicillin"
+                        ) }}
+                    </div>
+
+                    <div class="form-check mb-4">
+                        {{ form.renal_impairment(
+                            class="form-check-input"
+                        ) }}
+
+                        {{ form.renal_impairment.label(
+                            class="form-check-label"
+                        ) }}
+                    </div>
+
+                    {{ form.submit(
+                        class="btn btn-primary"
+                    ) }}
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        {% if result %}
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">
+                        Medication Safety Result
+                    </h2>
+
+                    <p class="mb-0">
+                        <strong>Status:</strong>
+                        {{ result.safety_status }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">
+                        Medication Suggestions
+                    </h2>
+
+                    <ul class="mb-0">
+                        {% for item in result.suggestions %}
+                            <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">
+                        Drug Interaction Checker
+                    </h2>
+
+                    {% if result.interactions %}
+                        {% for item in result.interactions %}
+                            <div class="alert alert-danger mb-2">
+                                <strong>
+                                    {{ item.severity }}:
+                                </strong>
+                                {{ item.message }}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="mb-0">
+                            No predefined interaction detected.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">
+                        Contraindications / Precautions
+                    </h2>
+
+                    {% if result.contraindications %}
+                        {% for item in result.contraindications %}
+                            <div class="alert alert-warning mb-2">
+                                {{ item }}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="mb-0">
+                            No predefined contraindication detected.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">
+                        AI Traceability
+                    </h2>
+
+                    <p class="mb-1">
+                        <strong>System:</strong>
+                        {{ result.model_name }}
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>Version:</strong>
+                        {{ result.model_version }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="alert alert-secondary">
+                {{ result.disclaimer }}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                Enter medication information to run the safety check.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

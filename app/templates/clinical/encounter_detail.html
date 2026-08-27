@@ -1,0 +1,516 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Encounter {{ encounter.id }} — iHIS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <div class="text-secondary mb-1">
+            Electronic Patient Record
+        </div>
+
+        <h1 class="h2 mb-1">
+            Encounter #{{ encounter.id }}
+        </h1>
+
+        <div>
+            <span class="badge bg-primary">
+                {{ patient.mrn }}
+            </span>
+
+            {% if encounter.status == "Open" %}
+                <span class="badge bg-success">Open</span>
+            {% else %}
+                <span class="badge bg-secondary">
+                    {{ encounter.status }}
+                </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <a
+        href="{{ url_for(
+            'patients.profile',
+            patient_id=patient.id
+        ) }}"
+        class="btn btn-outline-secondary"
+    >
+        Patient Profile
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card ihis-card">
+            <div class="card-body">
+                <h2 class="h5 mb-4">Encounter Summary</h2>
+
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Patient</dt>
+                    <dd class="col-sm-8">{{ patient.full_name }}</dd>
+
+                    <dt class="col-sm-4">MRN</dt>
+                    <dd class="col-sm-8">{{ patient.mrn }}</dd>
+
+                    <dt class="col-sm-4">Encounter type</dt>
+                    <dd class="col-sm-8">{{ encounter.encounter_type }}</dd>
+
+                    <dt class="col-sm-4">Department</dt>
+                    <dd class="col-sm-8">
+                        {{ encounter.department or "Not specified" }}
+                    </dd>
+
+                    <dt class="col-sm-4">Status</dt>
+                    <dd class="col-sm-8">{{ encounter.status }}</dd>
+
+                    <dt class="col-sm-4">Presenting complaint</dt>
+                    <dd class="col-sm-8">
+                        {{ encounter.presenting_complaint or "Not recorded" }}
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card ihis-card">
+            <div class="card-body">
+                <h2 class="h5">Record Metadata</h2>
+
+                <p class="mb-1">
+                    <strong>Encounter ID:</strong><br>
+                    {{ encounter.id }}
+                </p>
+
+                <p class="mb-1">
+                    <strong>Created by:</strong><br>
+                    {{ encounter.created_by.username }}
+                </p>
+
+                <p class="mb-0">
+                    <strong>Started:</strong><br>
+                    {{ encounter.started_at.strftime("%Y-%m-%d %H:%M") }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-1">
+    <div class="col-md-6">
+        <div class="card ihis-card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h2 class="h5 mb-0">Chief Complaints</h2>
+
+                    {% if encounter.status == "Open" %}
+                        <a
+                            href="{{ url_for(
+                                'clinical.add_chief_complaint',
+                                encounter_id=encounter.id
+                            ) }}"
+                            class="btn btn-outline-primary btn-sm"
+                        >
+                            Add Complaint
+                        </a>
+                    {% endif %}
+                </div>
+
+                {% if chief_complaints %}
+                    {% for complaint in chief_complaints %}
+                        <div
+                            class="{% if not loop.last %}border-bottom pb-3 mb-3{% endif %}"
+                        >
+                            <p class="mb-2">
+                                <strong>{{ complaint.complaint }}</strong>
+                            </p>
+
+                            <dl class="row small mb-2">
+                                <dt class="col-4">Onset</dt>
+                                <dd class="col-8">
+                                    {{ complaint.onset or "Not specified" }}
+                                </dd>
+
+                                <dt class="col-4">Duration</dt>
+                                <dd class="col-8">
+                                    {{ complaint.duration or "Not specified" }}
+                                </dd>
+
+                                <dt class="col-4">Severity</dt>
+                                <dd class="col-8">
+                                    {{ complaint.severity or "Not specified" }}
+                                </dd>
+                            </dl>
+
+                            <div class="text-secondary small">
+                                Recorded by
+                                {{ complaint.recorded_by.username }}
+                                at
+                                {{ complaint.recorded_at.strftime("%Y-%m-%d %H:%M") }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-secondary mb-0">
+                        No structured chief complaints recorded yet.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card ihis-card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h2 class="h5 mb-0">Vital Signs</h2>
+
+                    {% if encounter.status == "Open"
+                          and current_user.role.name in ["Administrator", "Doctor", "Nurse"] %}
+                        <a
+                            href="{{ url_for(
+                                'clinical.add_vital_signs',
+                                encounter_id=encounter.id
+                            ) }}"
+                            class="btn btn-outline-primary btn-sm"
+                        >
+                            Add Vital Signs
+                        </a>
+                    {% endif %}
+                </div>
+
+                {% if vital_signs %}
+                    {% for vital in vital_signs %}
+                        <div
+                            class="{% if not loop.last %}border-bottom pb-3 mb-3{% endif %}"
+                        >
+                            <div class="row small">
+                                <div class="col-6 mb-2">
+                                    <strong>Temperature</strong><br>
+                                    {% if vital.temperature_c is not none %}
+                                        {{ vital.temperature_c }} °C
+                                    {% else %}
+                                        Not recorded
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-6 mb-2">
+                                    <strong>Heart rate</strong><br>
+                                    {% if vital.heart_rate_bpm is not none %}
+                                        {{ vital.heart_rate_bpm }} bpm
+                                    {% else %}
+                                        Not recorded
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-6 mb-2">
+                                    <strong>Respiratory rate</strong><br>
+                                    {% if vital.respiratory_rate_bpm is not none %}
+                                        {{ vital.respiratory_rate_bpm }} /min
+                                    {% else %}
+                                        Not recorded
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-6 mb-2">
+                                    <strong>SpO₂</strong><br>
+                                    {% if vital.oxygen_saturation_pct is not none %}
+                                        {{ vital.oxygen_saturation_pct }}%
+                                    {% else %}
+                                        Not recorded
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-6 mb-2">
+                                    <strong>Blood pressure</strong><br>
+                                    {% if vital.systolic_bp is not none
+                                          and vital.diastolic_bp is not none %}
+                                        {{ vital.systolic_bp }}/{{ vital.diastolic_bp }} mmHg
+                                    {% else %}
+                                        Not recorded
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-6 mb-2">
+                                    <strong>BMI</strong><br>
+                                    {% if vital.bmi is not none %}
+                                        {{ vital.bmi }} kg/m²
+                                    {% else %}
+                                        Not available
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-6 mb-2">
+                                    <strong>Weight</strong><br>
+                                    {% if vital.weight_kg is not none %}
+                                        {{ vital.weight_kg }} kg
+                                    {% else %}
+                                        Not recorded
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-6 mb-2">
+                                    <strong>Height</strong><br>
+                                    {% if vital.height_cm is not none %}
+                                        {{ vital.height_cm }} cm
+                                    {% else %}
+                                        Not recorded
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="text-secondary small mt-2">
+                                Recorded by {{ vital.recorded_by.username }}
+                                at {{ vital.recorded_at.strftime("%Y-%m-%d %H:%M") }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-secondary mb-0">
+                        No vital signs recorded yet.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row g-4 mt-1">
+    <div class="col-md-6">
+        <div class="card ihis-card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h2 class="h5 mb-1">Diagnoses</h2>
+                        <p class="text-secondary small mb-0">
+                            Clinician-documented diagnostic assessment.
+                        </p>
+                    </div>
+
+                    {% if encounter.status == "Open"
+                          and current_user.role.name in ["Administrator", "Doctor"] %}
+                        <a
+                            href="{{ url_for(
+                                'clinical.add_diagnosis',
+                                encounter_id=encounter.id
+                            ) }}"
+                            class="btn btn-outline-primary btn-sm"
+                        >
+                            Add Diagnosis
+                        </a>
+                    {% endif %}
+                </div>
+
+                {% if diagnoses %}
+                    {% for diagnosis in diagnoses %}
+                        <div
+                            class="{% if not loop.last %}border-bottom pb-3 mb-3{% endif %}"
+                        >
+                            <div class="d-flex justify-content-between mb-2">
+                                <strong>
+                                    {{ diagnosis.diagnosis_text }}
+                                </strong>
+
+                                <span class="badge bg-secondary">
+                                    {{ diagnosis.diagnosis_type }}
+                                </span>
+                            </div>
+
+                            {% if diagnosis.code %}
+                                <p class="small mb-2">
+                                    <strong>Code:</strong>
+                                    {{ diagnosis.code }}
+                                    {% if diagnosis.code_system %}
+                                        ({{ diagnosis.code_system }})
+                                    {% endif %}
+                                </p>
+                            {% endif %}
+
+                            <div class="text-secondary small">
+                                Recorded by
+                                {{ diagnosis.recorded_by.username }}
+                                at
+                                {{
+                                    diagnosis.recorded_at.strftime(
+                                        "%Y-%m-%d %H:%M"
+                                    )
+                                }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-secondary mb-0">
+                        No diagnoses recorded yet.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card ihis-card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h2 class="h5 mb-1">Investigations</h2>
+                        <p class="text-secondary small mb-0">
+                            Diagnostic investigations requested during this encounter.
+                        </p>
+                    </div>
+
+                    {% if encounter.status == "Open"
+                          and current_user.role.name in ["Administrator", "Doctor"] %}
+                        <a
+                            href="{{ url_for(
+                                'clinical.add_investigation',
+                                encounter_id=encounter.id
+                            ) }}"
+                            class="btn btn-outline-primary btn-sm"
+                        >
+                            Order Investigation
+                        </a>
+                    {% endif %}
+                </div>
+
+                {% if investigations %}
+                    {% for investigation in investigations %}
+                        <div
+                            class="{% if not loop.last %}border-bottom pb-3 mb-3{% endif %}"
+                        >
+                            <div class="d-flex justify-content-between mb-2">
+                                <strong>
+                                    {{ investigation.investigation_name }}
+                                </strong>
+
+                                <span class="badge bg-secondary">
+                                    {{ investigation.status }}
+                                </span>
+                            </div>
+
+                            <dl class="row small mb-2">
+                                <dt class="col-4">Category</dt>
+                                <dd class="col-8">
+                                    {{ investigation.category }}
+                                </dd>
+
+                                <dt class="col-4">Priority</dt>
+                                <dd class="col-8">
+                                    {{ investigation.priority }}
+                                </dd>
+
+                                <dt class="col-4">Indication</dt>
+                                <dd class="col-8">
+                                    {{
+                                        investigation.clinical_indication
+                                        or "Not recorded"
+                                    }}
+                                </dd>
+                            </dl>
+
+                            <div class="text-secondary small">
+                                Requested by
+                                {{ investigation.requested_by.username }}
+                                at
+                                {{
+                                    investigation.requested_at.strftime(
+                                        "%Y-%m-%d %H:%M"
+                                    )
+                                }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-secondary mb-0">
+                        No investigations ordered yet.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card ihis-card mt-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+                <h2 class="h5 mb-1">
+                    Clinical Notes
+                </h2>
+
+                <p class="text-secondary mb-0">
+                    Structured longitudinal clinical documentation.
+                </p>
+            </div>
+
+            {% if encounter.status == "Open"
+                  and current_user.role.name in ["Administrator", "Doctor", "Nurse"] %}
+                <a
+                    href="{{ url_for(
+                        'clinical.add_clinical_note',
+                        encounter_id=encounter.id
+                    ) }}"
+                    class="btn btn-outline-primary btn-sm"
+                >
+                    Add Clinical Note
+                </a>
+            {% endif %}
+        </div>
+
+        {% if clinical_notes %}
+            {% for note in clinical_notes %}
+                <div
+                    class="{% if not loop.last %}border-bottom pb-4 mb-4{% endif %}"
+                >
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="badge bg-primary">
+                            {{ note.note_type }}
+                        </span>
+
+                        <span class="text-secondary small">
+                            {{ note.created_at.strftime("%Y-%m-%d %H:%M") }}
+                        </span>
+                    </div>
+
+                    {% if note.subjective %}
+                        <h3 class="h6">Subjective</h3>
+                        <p class="text-break">
+                            {{ note.subjective }}
+                        </p>
+                    {% endif %}
+
+                    {% if note.objective %}
+                        <h3 class="h6">Objective</h3>
+                        <p class="text-break">
+                            {{ note.objective }}
+                        </p>
+                    {% endif %}
+
+                    {% if note.assessment %}
+                        <h3 class="h6">Assessment</h3>
+                        <p class="text-break">
+                            {{ note.assessment }}
+                        </p>
+                    {% endif %}
+
+                    {% if note.plan %}
+                        <h3 class="h6">Plan</h3>
+                        <p class="text-break">
+                            {{ note.plan }}
+                        </p>
+                    {% endif %}
+
+                    <div class="text-secondary small mt-3">
+                        Authored by {{ note.created_by.username }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-secondary mb-0">
+                No clinical notes recorded yet.
+            </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+
+
+

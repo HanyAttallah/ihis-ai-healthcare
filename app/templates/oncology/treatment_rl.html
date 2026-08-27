@@ -1,0 +1,150 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Treatment Planning RL ? iHIS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="text-secondary">
+        Treatment Planning AI
+    </div>
+
+    <h1 class="h2">
+        Reinforcement Learning Treatment Simulation
+    </h1>
+
+    <p class="text-secondary">
+        {{ patient.full_name }} ? {{ patient.mrn }}
+    </p>
+
+    <a
+        href="{{ url_for(
+            'oncology.dfs_reasoning',
+            patient_id=patient.id
+        ) }}"
+        class="btn btn-outline-primary btn-sm"
+    >
+        Oncology DFS
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card ihis-card">
+            <div class="card-body">
+                <form method="post">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{
+                            form.disease_extent.label(
+                                class="form-label"
+                            )
+                        }}
+
+                        {{
+                            form.disease_extent(
+                                class="form-select"
+                            )
+                        }}
+                    </div>
+
+                    <div class="mb-4">
+                        {{
+                            form.ecog_status.label(
+                                class="form-label"
+                            )
+                        }}
+
+                        {{
+                            form.ecog_status(
+                                class="form-select"
+                            )
+                        }}
+                    </div>
+
+                    {{ form.submit(
+                        class="btn btn-primary"
+                    ) }}
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        {% if result %}
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">
+                        RL Recommended Strategy
+                    </h2>
+
+                    <div class="h4">
+                        {{ result.recommended_strategy }}
+                    </div>
+
+                    <p class="mb-0">
+                        {{ result.evaluation }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">
+                        Alternative Treatment Plans
+                    </h2>
+
+                    <ol class="mb-0">
+                        {% for item in result.alternatives %}
+                            <li>
+                                <strong>
+                                    {{ item.strategy }}
+                                </strong>
+                                ?
+                                learned utility:
+                                {{ item.learned_value }}
+                            </li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">
+                        RL Traceability
+                    </h2>
+
+                    <p class="mb-1">
+                        <strong>Algorithm:</strong>
+                        {{ result.algorithm }}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>System:</strong>
+                        {{ result.model_name }}
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>Version:</strong>
+                        {{ result.model_version }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="alert alert-warning">
+                {{ result.disclaimer }}
+            </div>
+
+        {% else %}
+            <div class="alert alert-info">
+                Select a simulated clinical state to compare
+                treatment strategies using Q-learning.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+
+

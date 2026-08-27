@@ -1,0 +1,68 @@
+{
+  "dataset": "Synthetic educational GP symptom dataset",
+  "dataset_size": 1600,
+  "train_size": 1280,
+  "test_size": 320,
+  "features": [
+    "age",
+    "temperature",
+    "heart_rate",
+    "cough",
+    "sputum",
+    "dyspnea",
+    "dysuria",
+    "urinary_frequency",
+    "abdominal_pain",
+    "diarrhea",
+    "vomiting",
+    "smoking"
+  ],
+  "classes": [
+    "Gastroenteritis",
+    "Pneumonia",
+    "Upper respiratory infection",
+    "Urinary tract infection"
+  ],
+  "accuracy": 0.93125,
+  "macro_f1": 0.9316930301562607,
+  "classification_report": {
+    "Gastroenteritis": {
+      "precision": 0.9397590361445783,
+      "recall": 0.975,
+      "f1-score": 0.9570552147239264,
+      "support": 80.0
+    },
+    "Pneumonia": {
+      "precision": 1.0,
+      "recall": 0.9,
+      "f1-score": 0.9473684210526315,
+      "support": 80.0
+    },
+    "Upper respiratory infection": {
+      "precision": 0.8588235294117647,
+      "recall": 0.9125,
+      "f1-score": 0.8848484848484849,
+      "support": 80.0
+    },
+    "Urinary tract infection": {
+      "precision": 0.9375,
+      "recall": 0.9375,
+      "f1-score": 0.9375,
+      "support": 80.0
+    },
+    "accuracy": 0.93125,
+    "macro avg": {
+      "precision": 0.9340206413890858,
+      "recall": 0.93125,
+      "f1-score": 0.9316930301562607,
+      "support": 320.0
+    },
+    "weighted avg": {
+      "precision": 0.9340206413890858,
+      "recall": 0.93125,
+      "f1-score": 0.9316930301562607,
+      "support": 320.0
+    }
+  },
+  "limitations": "Synthetic educational dataset generated from clinically plausible symptom patterns. This model is not clinically validated and must not be used for real patient care."
+}

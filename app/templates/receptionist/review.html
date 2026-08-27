@@ -1,0 +1,222 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Human Review — Receptionist AI — iHIS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="text-secondary mb-1">
+        Receptionist AI — Human Oversight
+    </div>
+
+    <h1 class="h2 mb-1">
+        Review Assessment #{{ assessment.id }}
+    </h1>
+
+    <p class="text-secondary mb-0">
+        {{ patient.full_name }} — {{ patient.mrn }}
+    </p>
+</div>
+
+<div class="alert alert-warning">
+    <strong>Human responsibility:</strong>
+    review the AI recommendation before accepting, modifying,
+    or rejecting it. The AI output is decision support only.
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card ihis-card mb-4">
+            <div class="card-body">
+                <h2 class="h5 mb-3">
+                    AI Recommendation
+                </h2>
+
+                <dl class="row mb-0">
+                    <dt class="col-sm-5">
+                        Suggested service
+                    </dt>
+
+                    <dd class="col-sm-7">
+                        <strong>
+                            {{
+                                assessment.output_data[
+                                    "recommended_service"
+                                ]
+                            }}
+                        </strong>
+                    </dd>
+
+                    <dt class="col-sm-5">
+                        Urgency
+                    </dt>
+
+                    <dd class="col-sm-7">
+                        {{
+                            assessment.output_data[
+                                "urgency"
+                            ]
+                        }}
+                    </dd>
+
+                    <dt class="col-sm-5">
+                        Red flags
+                    </dt>
+
+                    <dd class="col-sm-7">
+                        {% if assessment.output_data["red_flags"] %}
+                            {{
+                                assessment.output_data["red_flags"]
+                                | length
+                            }}
+                            detected
+                        {% else %}
+                            None detected
+                        {% endif %}
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card ihis-card">
+            <div class="card-body">
+                <form method="post">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.decision.label(
+                            class="form-label"
+                        ) }}
+
+                        {{ form.decision(
+                            class="form-select"
+                        ) }}
+
+                        {% for error in form.decision.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="alert alert-info small">
+                        If you choose <strong>Modify</strong>,
+                        select the final service and urgency and
+                        document your rationale. If you choose
+                        <strong>Reject</strong>, document why the
+                        AI recommendation should not be used.
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-7 mb-3">
+                            {{ form.final_service.label(
+                                class="form-label"
+                            ) }}
+
+                            {{ form.final_service(
+                                class="form-select"
+                            ) }}
+
+                            {% for error in form.final_service.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-md-5 mb-3">
+                            {{ form.final_urgency.label(
+                                class="form-label"
+                            ) }}
+
+                            {{ form.final_urgency(
+                                class="form-select"
+                            ) }}
+
+                            {% for error in form.final_urgency.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form.comments.label(
+                            class="form-label"
+                        ) }}
+
+                        {{ form.comments(
+                            class="form-control",
+                            rows="4",
+                            placeholder="Document review rationale when appropriate"
+                        ) }}
+
+                        {% for error in form.comments.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        {{ form.submit(
+                            class="btn btn-primary"
+                        ) }}
+
+                        <a
+                            href="{{ url_for(
+                                'receptionist.assessment_detail',
+                                assessment_id=assessment.id
+                            ) }}"
+                            class="btn btn-outline-secondary"
+                        >
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card ihis-card mb-4">
+            <div class="card-body">
+                <h2 class="h5">
+                    AI Explanation
+                </h2>
+
+                <p class="mb-0">
+                    {{ assessment.explanation }}
+                </p>
+            </div>
+        </div>
+
+        <div class="card ihis-card">
+            <div class="card-body">
+                <h2 class="h5">
+                    Intake
+                </h2>
+
+                <p class="mb-2">
+                    <strong>Symptoms:</strong><br>
+                    {{
+                        assessment.input_data[
+                            "symptom_text"
+                        ]
+                    }}
+                </p>
+
+                <p class="mb-0">
+                    <strong>Duration:</strong><br>
+                    {{
+                        assessment.input_data[
+                            "symptom_duration"
+                        ]
+                        or "Not specified"
+                    }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

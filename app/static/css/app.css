@@ -1,0 +1,26 @@
+﻿body {
+    background-color: #f8f9fa;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.ihis-page {
+    min-height: calc(100vh - 120px);
+}
+
+.ihis-card {
+    border: 0;
+    box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.08);
+}
+
+.role-badge {
+    font-size: 0.8rem;
+}
+
+.footer {
+    color: #6c757d;
+    font-size: 0.85rem;
+}

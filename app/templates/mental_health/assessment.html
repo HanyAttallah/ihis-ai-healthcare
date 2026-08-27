@@ -1,0 +1,132 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Psychiatrist AI Screening - iHIS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="text-secondary">Psychiatrist AI</div>
+    <h1 class="h2">Mental Health Screening</h1>
+    <p class="text-secondary">
+        {{ patient.full_name }} - {{ patient.mrn }}
+    </p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card ihis-card">
+            <div class="card-body">
+                <form method="post">
+                    {{ form.hidden_tag() }}
+
+                    <h2 class="h5 mb-3">Depression Screening</h2>
+
+                    <div class="mb-3">
+                        {{ form.low_interest.label(class="form-label") }}
+                        {{ form.low_interest(class="form-select") }}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form.depressed_mood.label(class="form-label") }}
+                        {{ form.depressed_mood(class="form-select") }}
+                    </div>
+
+                    <h2 class="h5 mb-3">Anxiety Screening</h2>
+
+                    <div class="mb-3">
+                        {{ form.nervous.label(class="form-label") }}
+                        {{ form.nervous(class="form-select") }}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form.unable_to_stop_worrying.label(class="form-label") }}
+                        {{ form.unable_to_stop_worrying(class="form-select") }}
+                    </div>
+
+                    <div class="alert alert-secondary small">
+                        Responses are scored from 0 to 3 according to symptom
+                        frequency. This educational screening does not establish
+                        a psychiatric diagnosis.
+                    </div>
+
+                    <div class="mt-4">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        {% if result %}
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">Depression Screening</h2>
+
+                    <p class="mb-1">
+                        <strong>Score:</strong>
+                        {{ result.depression_score }} / 6
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>Interpretation:</strong>
+                        {{ result.depression_result }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">Anxiety Screening</h2>
+
+                    <p class="mb-1">
+                        <strong>Score:</strong>
+                        {{ result.anxiety_score }} / 6
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>Interpretation:</strong>
+                        {{ result.anxiety_result }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">Mental Health Recommendations</h2>
+
+                    <ul class="mb-0">
+                        {% for recommendation in result.recommendations %}
+                            <li>{{ recommendation }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h6">Screening Engine</h2>
+
+                    <p class="mb-1">
+                        <strong>Model:</strong>
+                        {{ result.model_name }}
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>Version:</strong>
+                        {{ result.model_version }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="alert alert-warning">
+                {{ result.disclaimer }}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                Complete the mental health assessment and run the
+                Psychiatrist AI screening.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

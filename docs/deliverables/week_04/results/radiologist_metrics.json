@@ -1,0 +1,44 @@
+{
+  "dataset_type": "Synthetic educational X-ray-like image dataset",
+  "samples": 900,
+  "classes": [
+    "Normal",
+    "Pneumonia",
+    "Possible fracture"
+  ],
+  "accuracy": 1.0,
+  "classification_report": {
+    "Normal": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 60.0
+    },
+    "Pneumonia": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 60.0
+    },
+    "Possible fracture": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 60.0
+    },
+    "accuracy": 1.0,
+    "macro avg": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 180.0
+    },
+    "weighted avg": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 180.0
+    }
+  },
+  "limitations": "Synthetic educational image dataset only. Performance does not represent clinical validation."
+}

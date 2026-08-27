@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}Clinical Reasoning AI ? iHIS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="text-secondary">
+        Clinical Reasoning AI
+    </div>
+
+    <h1 class="h2">
+        Differential Diagnosis Engine
+    </h1>
+
+    <p class="text-secondary">
+        {{ patient.full_name }} ? {{ patient.mrn }}
+    </p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card ihis-card">
+            <div class="card-body">
+                <h2 class="h5">
+                    Symptoms
+                </h2>
+
+                <form method="post">
+                    {{ form.hidden_tag() }}
+
+                    {% for field in [
+                        form.fever,
+                        form.cough,
+                        form.sputum,
+                        form.dyspnea,
+                        form.chest_pain,
+                        form.sore_throat,
+                        form.nasal_symptoms,
+                        form.fatigue,
+                        form.dysuria,
+                        form.urinary_frequency,
+                        form.lower_abdominal_pain,
+                        form.abdominal_pain,
+                        form.diarrhea,
+                        form.vomiting,
+                        form.nausea,
+                        form.sweating,
+                        form.wheeze,
+                        form.chest_tightness
+                    ] %}
+                        <div class="form-check mb-2">
+                            {{ field(
+                                class="form-check-input"
+                            ) }}
+
+                            {{ field.label(
+                                class="form-check-label"
+                            ) }}
+                        </div>
+                    {% endfor %}
+
+                    <div class="mt-4">
+                        {{ form.submit(
+                            class="btn btn-primary"
+                        ) }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        {% if result %}
+            {% if result.leading_diagnosis %}
+                <div class="card ihis-card mb-4">
+                    <div class="card-body">
+                        <h2 class="h5">
+                            Leading Differential
+                        </h2>
+
+                        <div class="h4">
+                            {{ result.leading_diagnosis }}
+                        </div>
+
+                        <p class="mb-0">
+                            {{ result.logic }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card ihis-card mb-4">
+                    <div class="card-body">
+                        <h2 class="h5">
+                            Ranked Differential Diagnoses
+                        </h2>
+
+                        <ol class="mb-0">
+                            {% for item in result.differentials %}
+                                <li class="mb-3">
+                                    <strong>
+                                        {{ item.diagnosis }}
+                                    </strong>
+
+                                    ?
+                                    {{
+                                        "%.1f"|format(
+                                            item.normalized_score * 100
+                                        )
+                                    }}%
+
+                                    <div class="small text-secondary">
+                                        {{ item.explanation }}
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="card ihis-card mb-4">
+                    <div class="card-body">
+                        <h2 class="h5">
+                            Diagnostic Logic
+                        </h2>
+
+                        {% for item in result.differentials %}
+                            <div class="border-bottom py-2">
+                                <strong>
+                                    {{ item.diagnosis }}
+                                </strong>
+
+                                <div>
+                                    Matched:
+                                    {% for feature in item.matched_features %}
+                                        {{ feature.symptom.replace("_", " ") }}
+                                        ({{ feature.weight }})
+                                        {% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="card ihis-card mb-4">
+                    <div class="card-body">
+                        <h2 class="h5">
+                            Suggested Investigations for Leading Differential
+                        </h2>
+
+                        <ul class="mb-0">
+                            {% for item in result.differentials[0].investigations %}
+                                <li>{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card ihis-card mb-4">
+                    <div class="card-body">
+                        <h2 class="h5">
+                            AI Traceability
+                        </h2>
+
+                        <p class="mb-1">
+                            <strong>System:</strong>
+                            {{ result.model_name }}
+                        </p>
+
+                        <p class="mb-0">
+                            <strong>Version:</strong>
+                            {{ result.model_version }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning">
+                    {{ result.disclaimer }}
+                </div>
+
+            {% else %}
+                <div class="alert alert-info">
+                    No predefined disease rule matched the selected symptoms.
+                </div>
+            {% endif %}
+
+        {% else %}
+            <div class="alert alert-info">
+                Select symptoms to generate a differential diagnosis.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

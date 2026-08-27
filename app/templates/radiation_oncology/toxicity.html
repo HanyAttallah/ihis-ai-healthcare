@@ -1,0 +1,292 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Radiation Oncology AI — iHIS{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <div class="text-secondary">
+        Bonus Department AI
+    </div>
+
+    <h1 class="h2">
+        Radiation Oncology AI
+    </h1>
+
+    <h2 class="h5 text-secondary">
+        CTCAE v5.0 On-Treatment Toxicity Assessment
+    </h2>
+
+    <p class="text-secondary">
+        {{ patient.full_name }} — {{ patient.mrn }}
+    </p>
+</div>
+
+
+<div class="row g-4">
+
+<div class="col-lg-5">
+
+<div class="card ihis-card">
+<div class="card-body">
+
+<h2 class="h5">
+Radiotherapy Toxicity Assessment
+</h2>
+
+<p class="small text-secondary">
+Toxicities are recorded using NCI CTCAE v5.0 criteria.
+Pain is recorded separately on a 0–10 numeric scale.
+</p>
+
+<form method="post">
+
+{{ form.hidden_tag() }}
+
+{% for field in [
+    form.mucositis_oral,
+    form.dermatitis_radiation,
+    form.dysphagia,
+    form.nausea,
+    form.vomiting,
+    form.fatigue
+] %}
+
+<div class="mb-3">
+    {{ field.label(class="form-label") }}
+    {{ field(class="form-select") }}
+</div>
+
+{% endfor %}
+
+
+<div class="mb-3">
+    {{ form.pain_score.label(class="form-label") }}
+
+    {{ form.pain_score(
+        class="form-control",
+        min="0",
+        max="10",
+        placeholder="0–10"
+    ) }}
+
+    {% for error in form.pain_score.errors %}
+        <div class="text-danger small">
+            {{ error }}
+        </div>
+    {% endfor %}
+</div>
+
+
+<div class="form-check mb-2">
+    {{ form.weight_loss(
+        class="form-check-input"
+    ) }}
+
+    {{ form.weight_loss.label(
+        class="form-check-label"
+    ) }}
+</div>
+
+
+<div class="form-check mb-4">
+    {{ form.fever(
+        class="form-check-input"
+    ) }}
+
+    {{ form.fever.label(
+        class="form-check-label"
+    ) }}
+</div>
+
+
+{{ form.submit(
+    class="btn btn-primary"
+) }}
+
+</form>
+
+</div>
+</div>
+</div>
+
+
+<div class="col-lg-7">
+
+{% if result %}
+
+<div class="card ihis-card mb-4">
+<div class="card-body">
+
+<h2 class="h5">
+Radiation Oncology Review Recommendation
+</h2>
+
+<div class="h4">
+{{ result.review_level }}
+</div>
+
+<p class="mb-0">
+{{ result.recommendation }}
+</p>
+
+</div>
+</div>
+
+
+<div class="card ihis-card mb-4">
+<div class="card-body">
+
+<h2 class="h5">
+CTCAE v5.0 Toxicity Summary
+</h2>
+
+{% for item in result.toxicity_summary %}
+
+<div class="border-bottom py-2">
+
+<strong>
+{{ item.name }}
+</strong>
+
+<span class="badge
+    {% if item.grade >= 4 %}
+        text-bg-danger
+    {% elif item.grade == 3 %}
+        text-bg-danger
+    {% elif item.grade == 2 %}
+        text-bg-warning
+    {% elif item.grade == 1 %}
+        text-bg-info
+    {% else %}
+        text-bg-secondary
+    {% endif %}
+">
+    Grade {{ item.grade }}
+</span>
+
+<div class="small text-secondary mt-1">
+{{ item.description }}
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+</div>
+
+
+<div class="card ihis-card mb-4">
+<div class="card-body">
+
+<h2 class="h5">
+Pain Assessment
+</h2>
+
+<p class="mb-1">
+<strong>Numeric pain score:</strong>
+{{ result.pain_score }} / 10
+</p>
+
+<p class="mb-0">
+<strong>Application interpretation:</strong>
+{{ result.pain_category }}
+</p>
+
+</div>
+</div>
+
+
+{% if result.grade_4_toxicities %}
+
+<div class="alert alert-danger">
+
+<strong>CTCAE Grade 4 toxicity:</strong>
+{{ result.grade_4_toxicities | join(", ") }}
+
+</div>
+
+{% endif %}
+
+
+{% if result.grade_3_toxicities %}
+
+<div class="alert alert-danger">
+
+<strong>CTCAE Grade 3 toxicity:</strong>
+{{ result.grade_3_toxicities | join(", ") }}
+
+</div>
+
+{% endif %}
+
+
+{% if result.alerts %}
+
+<div class="alert alert-warning">
+
+<strong>Additional clinical alerts:</strong>
+
+<ul class="mb-0">
+
+{% for item in result.alerts %}
+<li>{{ item }}</li>
+{% endfor %}
+
+</ul>
+
+</div>
+
+{% endif %}
+
+
+<div class="card ihis-card mb-4">
+<div class="card-body">
+
+<h2 class="h5">
+AI Traceability
+</h2>
+
+<p class="mb-1">
+<strong>Department:</strong>
+{{ result.department }}
+</p>
+
+<p class="mb-1">
+<strong>Toxicity standard:</strong>
+{{ result.reference_standard }}
+</p>
+
+<p class="mb-1">
+<strong>System:</strong>
+{{ result.model_name }}
+</p>
+
+<p class="mb-0">
+<strong>Version:</strong>
+{{ result.model_version }}
+</p>
+
+</div>
+</div>
+
+
+<div class="alert alert-secondary">
+{{ result.disclaimer }}
+</div>
+
+
+{% else %}
+
+<div class="alert alert-info">
+Enter treatment-related toxicities using CTCAE v5.0
+and record pain on the 0–10 scale.
+</div>
+
+{% endif %}
+
+</div>
+</div>
+
+{% endblock %}

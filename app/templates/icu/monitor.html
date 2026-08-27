@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}ICU AI Monitoring ? iHIS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="text-secondary">
+        ICU Specialist AI
+    </div>
+
+    <h1 class="h2">
+        ICU Clinical Decision Support
+    </h1>
+
+    <p class="text-secondary">
+        {{ patient.full_name }} ? {{ patient.mrn }}
+    </p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card ihis-card">
+            <div class="card-body">
+                <h2 class="h5 mb-3">
+                    Vital-Sign Monitoring
+                </h2>
+
+                <form method="post">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.temperature.label(class="form-label") }}
+                        {{ form.temperature(class="form-control") }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.heart_rate.label(class="form-label") }}
+                        {{ form.heart_rate(class="form-control") }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.respiratory_rate.label(class="form-label") }}
+                        {{ form.respiratory_rate(class="form-control") }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.systolic_bp.label(class="form-label") }}
+                        {{ form.systolic_bp(class="form-control") }}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form.oxygen_saturation.label(class="form-label") }}
+                        {{ form.oxygen_saturation(class="form-control") }}
+                    </div>
+
+                    {{ form.submit(class="btn btn-primary") }}
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        {% if result %}
+            {% if result.status == "Critical" %}
+                <div class="alert alert-danger">
+                    <h2 class="h4">
+                        Critical Condition Detected
+                    </h2>
+                    Immediate clinical review is required.
+                </div>
+            {% elif result.status == "Warning" %}
+                <div class="alert alert-warning">
+                    <h2 class="h4">
+                        Abnormal Findings Detected
+                    </h2>
+                    Prompt clinical reassessment is recommended.
+                </div>
+            {% else %}
+                <div class="alert alert-success">
+                    <h2 class="h4">
+                        Vital Signs Stable
+                    </h2>
+                    No predefined abnormal threshold was detected.
+                </div>
+            {% endif %}
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="card ihis-card h-100">
+                        <div class="card-body">
+                            <strong>Status</strong>
+                            <div class="h4 mt-2">
+                                {{ result.status }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card ihis-card h-100">
+                        <div class="card-body">
+                            <strong>Critical alerts</strong>
+                            <div class="h4 mt-2">
+                                {{ result.critical_count }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card ihis-card h-100">
+                        <div class="card-body">
+                            <strong>Warnings</strong>
+                            <div class="h4 mt-2">
+                                {{ result.warning_count }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">
+                        Clinical Alerts
+                    </h2>
+
+                    {% if result.alerts %}
+                        {% for alert in result.alerts %}
+                            <div class="border-bottom py-2">
+                                <strong>
+                                    {{ alert.parameter }}
+                                </strong>
+                                ? {{ alert.value }}
+
+                                <span class="badge
+                                    {% if alert.severity == 'Critical' %}
+                                        text-bg-danger
+                                    {% else %}
+                                        text-bg-warning
+                                    {% endif %}
+                                ">
+                                    {{ alert.severity }}
+                                </span>
+
+                                <div class="small text-secondary">
+                                    {{ alert.message }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="mb-0">
+                            No alerts generated.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">
+                        Recommended Urgent Interventions
+                    </h2>
+
+                    <ul class="mb-0">
+                        {% for item in result.recommendations %}
+                            <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">
+                        AI Traceability
+                    </h2>
+
+                    <p class="mb-1">
+                        <strong>System:</strong>
+                        {{ result.model_name }}
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>Version:</strong>
+                        {{ result.model_version }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="alert alert-secondary">
+                {{ result.disclaimer }}
+            </div>
+
+        {% else %}
+            <div class="alert alert-info">
+                Enter vital signs to run ICU clinical decision support.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

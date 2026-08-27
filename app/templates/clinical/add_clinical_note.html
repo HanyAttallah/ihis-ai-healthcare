@@ -1,0 +1,137 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Clinical Note — iHIS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="text-secondary mb-1">
+        Electronic Patient Record
+    </div>
+
+    <h1 class="h2 mb-1">
+        Record Clinical Note
+    </h1>
+
+    <p class="text-secondary mb-0">
+        Encounter #{{ encounter.id }}
+        — {{ patient.full_name }}
+        — {{ patient.mrn }}
+    </p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card ihis-card">
+            <div class="card-body">
+                <form method="post">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.note_type.label(class="form-label") }}
+                        {{ form.note_type(class="form-select") }}
+
+                        {% for error in form.note_type.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.subjective.label(class="form-label") }}
+                        {{ form.subjective(
+                            class="form-control",
+                            rows="4",
+                            placeholder="Symptoms, history and patient-reported information"
+                        ) }}
+
+                        {% for error in form.subjective.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.objective.label(class="form-label") }}
+                        {{ form.objective(
+                            class="form-control",
+                            rows="4",
+                            placeholder="Examination findings and objective clinical data"
+                        ) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.assessment.label(class="form-label") }}
+                        {{ form.assessment(
+                            class="form-control",
+                            rows="4",
+                            placeholder="Clinical assessment and differential considerations"
+                        ) }}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form.plan.label(class="form-label") }}
+                        {{ form.plan(
+                            class="form-control",
+                            rows="4",
+                            placeholder="Investigations, management and follow-up plan"
+                        ) }}
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        {{ form.submit(class="btn btn-primary") }}
+
+                        <a
+                            href="{{ url_for(
+                                'clinical.encounter_detail',
+                                encounter_id=encounter.id
+                            ) }}"
+                            class="btn btn-outline-secondary"
+                        >
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="alert alert-warning mt-4">
+            <strong>Educational prototype:</strong>
+            use synthetic or de-identified clinical information only.
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card ihis-card">
+            <div class="card-body">
+                <h2 class="h5">Encounter Context</h2>
+
+                <p class="mb-1">
+                    <strong>Patient:</strong><br>
+                    {{ patient.full_name }}
+                </p>
+
+                <p class="mb-1">
+                    <strong>MRN:</strong><br>
+                    {{ patient.mrn }}
+                </p>
+
+                <p class="mb-1">
+                    <strong>Encounter:</strong><br>
+                    #{{ encounter.id }}
+                    — {{ encounter.encounter_type }}
+                </p>
+
+                <p class="mb-0">
+                    <strong>Presenting complaint:</strong><br>
+                    {{
+                        encounter.presenting_complaint
+                        or "Not recorded"
+                    }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

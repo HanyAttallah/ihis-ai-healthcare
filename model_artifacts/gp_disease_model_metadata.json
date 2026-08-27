@@ -1,0 +1,28 @@
+{
+  "model_name": "iHIS GP Multiclass Logistic Regression",
+  "version": "1.0",
+  "features": [
+    "age",
+    "temperature",
+    "heart_rate",
+    "cough",
+    "sputum",
+    "dyspnea",
+    "dysuria",
+    "urinary_frequency",
+    "abdominal_pain",
+    "diarrhea",
+    "vomiting",
+    "smoking"
+  ],
+  "classes": [
+    "Gastroenteritis",
+    "Pneumonia",
+    "Upper respiratory infection",
+    "Urinary tract infection"
+  ],
+  "dataset": "gp_week2_synthetic.csv",
+  "dataset_type": "Synthetic educational healthcare dataset",
+  "accuracy": 0.93125,
+  "macro_f1": 0.9316930301562607
+}

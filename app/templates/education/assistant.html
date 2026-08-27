@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Education AI ? iHIS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="text-secondary">
+        Patient Education AI
+    </div>
+
+    <h1 class="h2">
+        Healthcare RAG Assistant
+    </h1>
+
+    <p class="text-secondary">
+        Ask educational questions about diseases and medications.
+    </p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card ihis-card">
+            <div class="card-body">
+                <form method="post">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.question.label(
+                            class="form-label"
+                        ) }}
+
+                        {{ form.question(
+                            class="form-control",
+                            rows="5",
+                            placeholder="Example: What is pneumonia?"
+                        ) }}
+
+                        {% for error in form.question.errors %}
+                            <div class="text-danger small">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    {{ form.submit(
+                        class="btn btn-primary"
+                    ) }}
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        {% if result %}
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">
+                        Patient Education Answer
+                    </h2>
+
+                    <p class="mb-0">
+                        {{ result.answer }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">
+                        Retrieved Sources
+                    </h2>
+
+                    {% if result.sources %}
+                        <ol class="mb-0">
+                            {% for source in result.sources %}
+                                <li>
+                                    <strong>
+                                        {{ source.title }}
+                                    </strong>
+                                    ? {{ source.category }}
+                                    ?
+                                    {{
+                                        "%.1f"|format(
+                                            source.score * 100
+                                        )
+                                    }}% retrieval score
+                                </li>
+                            {% endfor %}
+                        </ol>
+                    {% else %}
+                        <p class="mb-0">
+                            No relevant local source was retrieved.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">
+                        RAG Traceability
+                    </h2>
+
+                    <p class="mb-1">
+                        <strong>Retriever:</strong>
+                        {{ result.model_name }}
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>Version:</strong>
+                        {{ result.model_version }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="alert alert-warning">
+                {{ result.disclaimer }}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                Ask a question to retrieve relevant educational material.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

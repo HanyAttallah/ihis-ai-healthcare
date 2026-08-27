@@ -1,0 +1,46 @@
+﻿# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Flask local instance data
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.log
+*.tmp
+*.bak
+~$*
+
+# Large/local datasets and caches
+data/raw/
+data/cache/
+model_artifacts/*.bin
+model_artifacts/*.pt
+model_artifacts/*.pth
+model_artifacts/*.h5
+model_artifacts/*.ckpt

@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}GP AI Consultation ? iHIS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="text-secondary">General Practitioner AI</div>
+    <h1 class="h2">Disease Prediction</h1>
+    <p class="text-secondary">
+        {{ patient.full_name }} ? {{ patient.mrn }}
+    </p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card ihis-card">
+            <div class="card-body">
+                <form method="post">
+                    {{ form.hidden_tag() }}
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            {{ form.age.label(class="form-label") }}
+                            {{ form.age(class="form-control") }}
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            {{ form.temperature.label(class="form-label") }}
+                            {{ form.temperature(class="form-control") }}
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            {{ form.heart_rate.label(class="form-label") }}
+                            {{ form.heart_rate(class="form-control") }}
+                        </div>
+                    </div>
+
+                    <h2 class="h6 mt-2">Symptoms / Risk Factors</h2>
+
+                    {% for field in [
+                        form.cough,
+                        form.sputum,
+                        form.dyspnea,
+                        form.dysuria,
+                        form.urinary_frequency,
+                        form.abdominal_pain,
+                        form.diarrhea,
+                        form.vomiting,
+                        form.smoking
+                    ] %}
+                        <div class="form-check mb-2">
+                            {{ field(class="form-check-input") }}
+                            {{ field.label(class="form-check-label") }}
+                        </div>
+                    {% endfor %}
+
+                    <div class="mt-4">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        {% if result %}
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">Prediction Result</h2>
+
+                    <p class="mb-1">
+                        <strong>Predicted condition:</strong>
+                        {{ result.predicted_condition }}
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>Model score:</strong>
+                        {{ "%.1f"|format(result.confidence * 100) }}%
+                    </p>
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">Ranked Predictions</h2>
+
+                    <ol class="mb-0">
+                        {% for item in result.ranked_predictions %}
+                            <li>
+                                {{ item.condition }} ?
+                                {{ "%.1f"|format(item.probability * 100) }}%
+                            </li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">Risk Factors</h2>
+
+                    <ul class="mb-0">
+                        {% for factor in result.risk_factors %}
+                            <li>{{ factor }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card ihis-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">Routine Investigations</h2>
+
+                    <ul class="mb-0">
+                        {% for investigation in result.recommended_investigations %}
+                            <li>{{ investigation }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="alert alert-warning">
+                {{ result.disclaimer }}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                Enter the clinical features and run the GP AI prediction.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
