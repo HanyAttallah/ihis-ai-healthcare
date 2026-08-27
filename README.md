@@ -535,16 +535,17 @@ The project `.gitignore` is configured to keep `.env` out of version control.
 
 # Database Initialization
 
-Initialize the local demonstration database:
+Apply the database migrations:
 
 ```powershell
-flask --app run.py init-db
+flask --app run.py db upgrade
 ```
 
-Seed the demonstration roles/users:
+Seed the standard application roles, then create the first Administrator account:
 
 ```powershell
-flask --app run.py seed-demo
+python -m scripts.seed_roles
+python -m scripts.create_admin
 ```
 
 These commands prepare the local educational environment used by the Flask application.
@@ -648,8 +649,9 @@ pip install -r requirements.txt
 
 Copy-Item .env.example .env
 
-flask --app run.py init-db
-flask --app run.py seed-demo
+flask --app run.py db upgrade
+python -m scripts.seed_roles
+python -m scripts.create_admin
 
 pytest -q
 flask --app run.py run --debug
