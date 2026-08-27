@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Radiologist AI ? iHIS{% endblock %}
+{% block title %}Radiologist AI &mdash; iHIS{% endblock %}
 
 {% block content %}
 <div class="mb-4">
@@ -13,7 +13,7 @@
     </h1>
 
     <p class="text-secondary">
-        {{ patient.full_name }} ? {{ patient.mrn }}
+        {{ patient.full_name }} &mdash; {{ patient.mrn }}
     </p>
 </div>
 
@@ -97,7 +97,7 @@
                     <ol class="mb-0">
                         {% for item in result.ranked_predictions %}
                             <li>
-                                {{ item.label }} ?
+                                {{ item.label }} &mdash;
                                 {{
                                     "%.1f"|format(
                                         item.probability * 100
@@ -118,6 +118,16 @@
                     <p class="mb-1">
                         <strong>Model:</strong>
                         {{ result.model_name }}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Algorithm:</strong>
+                        {{ result.algorithm }}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Framework:</strong>
+                        {{ result.framework }}
                     </p>
 
                     <p class="mb-0">

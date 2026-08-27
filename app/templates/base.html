@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -56,6 +56,17 @@
                                 href="{{ url_for('main.dashboard') }}"
                             >
                                 Dashboard
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a
+                                class="nav-link"
+                                href="{{ url_for('education.assistant') }}"
+                            >
+                                Patient Education
                             </a>
                         </li>
                     {% endif %}

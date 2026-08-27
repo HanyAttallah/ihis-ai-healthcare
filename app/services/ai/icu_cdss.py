@@ -86,14 +86,14 @@ def analyze_icu_vitals(data):
     if temperature < 35.0 or temperature >= 40.0:
         alerts.append({
             "parameter": "Temperature",
-            "value": f"{temperature:.1f} ?C",
+            "value": f"{temperature:.1f} \u00b0C",
             "severity": "Critical",
             "message": "Critical temperature threshold detected.",
         })
     elif temperature < 36.0 or temperature >= 38.5:
         alerts.append({
             "parameter": "Temperature",
-            "value": f"{temperature:.1f} ?C",
+            "value": f"{temperature:.1f} \u00b0C",
             "severity": "Warning",
             "message": "Abnormal temperature detected.",
         })

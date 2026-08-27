@@ -44,3 +44,6 @@ model_artifacts/*.pt
 model_artifacts/*.pth
 model_artifacts/*.h5
 model_artifacts/*.ckpt
+
+# Keep the small educational Week 4 CNN artifact reproducible
+!model_artifacts/radiologist_cnn.pt

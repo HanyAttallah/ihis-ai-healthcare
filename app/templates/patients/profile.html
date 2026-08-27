@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}{{ patient.mrn }} — iHIS{% endblock %}
 
@@ -62,6 +62,30 @@
                 class="btn btn-outline-primary"
             >
                 Psychiatrist AI
+            </a>
+        {% endif %}
+
+        {% if current_user.role.name in ["Administrator", "Doctor"] %}
+            <a
+                href="{{ url_for(
+                    'imaging.xray_analysis',
+                    patient_id=patient.id
+                ) }}"
+                class="btn btn-outline-primary"
+            >
+                Radiologist AI
+            </a>
+        {% endif %}
+
+        {% if current_user.role.name in ["Administrator", "Doctor"] %}
+            <a
+                href="{{ url_for(
+                    'multi_agent.integrated_case',
+                    patient_id=patient.id
+                ) }}"
+                class="btn btn-outline-primary"
+            >
+                Multi-Agent AI
             </a>
         {% endif %}
 

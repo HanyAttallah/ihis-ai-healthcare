@@ -26,7 +26,15 @@ def integrated_case(patient_id):
     result = None
 
     if form.validate_on_submit():
-        result = run_integrated_case()
+        result = run_integrated_case(
+            case_type=form.scenario.data,
+
+            patient_context={
+                "patient_id": patient.id,
+                "mrn": patient.mrn,
+                "name": patient.full_name,
+            },
+        )
 
     return render_template(
         "multi_agent/integrated_case.html",

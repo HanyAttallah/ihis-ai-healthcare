@@ -1,9 +1,11 @@
-from functools import lru_cache
+﻿from functools import lru_cache
 from pathlib import Path
 
-import joblib
 import numpy as np
 from PIL import Image
+
+import torch
+from torch import nn
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -11,131 +13,219 @@ ROOT = Path(__file__).resolve().parents[3]
 MODEL_PATH = (
     ROOT
     / "model_artifacts"
-    / "radiologist_xray_model.joblib"
+    / "radiologist_cnn.pt"
 )
+
+CLASSES = [
+    "Normal",
+    "Pneumonia",
+    "Possible fracture",
+]
+
+
+class XRayCNN(nn.Module):
+    """Week 4 educational convolutional neural network."""
+
+    def __init__(self):
+        super().__init__()
+
+        self.features = nn.Sequential(
+            nn.Conv2d(
+                1,
+                8,
+                kernel_size=3,
+                padding=1,
+            ),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+
+            nn.Conv2d(
+                8,
+                16,
+                kernel_size=3,
+                padding=1,
+            ),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+
+            nn.Conv2d(
+                16,
+                32,
+                kernel_size=3,
+                padding=1,
+            ),
+            nn.ReLU(),
+
+            nn.AdaptiveAvgPool2d(
+                (4, 4)
+            ),
+        )
+
+        self.classifier = nn.Sequential(
+            nn.Flatten(),
+
+            nn.Linear(
+                32 * 4 * 4,
+                64,
+            ),
+            nn.ReLU(),
+
+            nn.Linear(
+                64,
+                len(CLASSES),
+            ),
+        )
+
+    def forward(self, x):
+        x = self.features(x)
+        return self.classifier(x)
 
 
 @lru_cache(maxsize=1)
 def load_model():
     if not MODEL_PATH.exists():
         raise FileNotFoundError(
-            "Radiologist model not found. "
+            "Radiologist CNN model not found. "
             "Run scripts/train_imaging_model.py first."
         )
 
-    return joblib.load(
-        MODEL_PATH
+    model = XRayCNN()
+
+    state_dict = torch.load(
+        MODEL_PATH,
+        map_location="cpu",
     )
 
+    model.load_state_dict(
+        state_dict
+    )
 
-def extract_features_from_path(path):
+    model.eval()
+
+    return model
+
+
+def preprocess_image(path):
     image = Image.open(
         path
     ).convert("L")
 
     image = image.resize(
-        (32, 32)
+        (64, 64)
     )
 
-    arr = np.asarray(
+    array = np.asarray(
         image,
         dtype=np.float32,
     ) / 255.0
 
-    flat = arr.flatten()
-
-    horizontal_edges = np.abs(
-        np.diff(arr, axis=1)
-    ).mean()
-
-    vertical_edges = np.abs(
-        np.diff(arr, axis=0)
-    ).mean()
-
-    summary = np.array(
-        [
-            arr.mean(),
-            arr.std(),
-            horizontal_edges,
-            vertical_edges,
-            np.mean(arr > 0.55),
-            np.mean(arr < 0.20),
-        ],
-        dtype=np.float32,
+    tensor = (
+        torch.from_numpy(array)
+        .unsqueeze(0)
+        .unsqueeze(0)
     )
 
-    return np.concatenate(
-        [flat, summary]
-    )
+    return tensor
 
 
 def analyze_xray(path):
+    """
+    Analyze an uploaded educational X-ray using a real CNN.
+
+    The model is trained only on synthetic demonstration images.
+    """
+
     model = load_model()
 
-    features = extract_features_from_path(
+    tensor = preprocess_image(
         path
-    ).reshape(1, -1)
-
-    probabilities = model.predict_proba(
-        features
-    )[0]
-
-    classes = model.named_steps[
-        "model"
-    ].classes_
-
-    ranked = sorted(
-        zip(
-            classes,
-            probabilities,
-        ),
-        key=lambda item: item[1],
-        reverse=True,
     )
+
+    with torch.no_grad():
+        logits = model(
+            tensor
+        )
+
+        probabilities = torch.softmax(
+            logits,
+            dim=1,
+        )[0]
+
+    ranked_indices = torch.argsort(
+        probabilities,
+        descending=True,
+    ).tolist()
+
+    ranked = [
+        (
+            CLASSES[index],
+            float(
+                probabilities[index].item()
+            ),
+        )
+        for index in ranked_indices
+    ]
 
     prediction = ranked[0][0]
 
     if prediction == "Pneumonia":
         interpretation = (
-            "The educational image classifier detected "
-            "a pneumonia-like opacity pattern."
+            "The educational CNN detected a "
+            "pneumonia-like opacity pattern."
         )
 
     elif prediction == "Possible fracture":
         interpretation = (
-            "The educational image classifier detected "
-            "a fracture-like linear pattern."
+            "The educational CNN detected a "
+            "fracture-like linear pattern."
         )
 
     else:
         interpretation = (
-            "No pneumonia-like or fracture-like synthetic "
-            "pattern was detected by this prototype."
+            "The educational CNN did not detect "
+            "the predefined pneumonia-like or "
+            "fracture-like synthetic patterns."
         )
 
     return {
         "prediction": prediction,
+
         "score": float(
             ranked[0][1]
         ),
+
         "ranked_predictions": [
             {
                 "label": label,
-                "probability": float(
-                    probability
-                ),
+                "probability": probability,
             }
             for label, probability in ranked
         ],
+
         "interpretation": interpretation,
+
         "model_name": (
-            "iHIS Educational Radiologist Image Classifier"
+            "iHIS Educational Radiologist CNN"
         ),
-        "model_version": "1.0",
+
+        "model_version": "2.0",
+
+        "algorithm": (
+            "Convolutional Neural Network (CNN)"
+        ),
+
+        "framework": "PyTorch",
+
+        "architecture": (
+            "Three convolutional layers with "
+            "ReLU activation, pooling and a "
+            "fully connected classifier."
+        ),
+
         "disclaimer": (
-            "Educational prototype only. "
-            "The classifier was trained on synthetic "
-            "X-ray-like images and is not clinically "
-            "validated for radiological diagnosis."
+            "Educational deep-learning prototype only. "
+            "The CNN was trained on synthetic X-ray-like "
+            "images and is not clinically validated for "
+            "radiological diagnosis."
         ),
     }

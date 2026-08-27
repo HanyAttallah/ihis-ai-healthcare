@@ -1,11 +1,24 @@
 {
   "dataset_type": "Synthetic educational X-ray-like image dataset",
   "samples": 900,
+  "train_samples": 720,
+  "test_samples": 180,
   "classes": [
     "Normal",
     "Pneumonia",
     "Possible fracture"
   ],
+  "algorithm": "Convolutional Neural Network (CNN)",
+  "framework": "PyTorch",
+  "architecture": [
+    "Conv2d 1->8 + ReLU + MaxPool",
+    "Conv2d 8->16 + ReLU + MaxPool",
+    "Conv2d 16->32 + ReLU",
+    "AdaptiveAvgPool2d 4x4",
+    "Dense 512->64 + ReLU",
+    "Dense 64->3"
+  ],
+  "epochs": 18,
   "accuracy": 1.0,
   "classification_report": {
     "Normal": {
@@ -40,5 +53,5 @@
       "support": 180.0
     }
   },
-  "limitations": "Synthetic educational image dataset only. Performance does not represent clinical validation."
+  "limitations": "Synthetic educational image dataset only. Performance does not represent clinical validation and the model must not be used for patient diagnosis."
 }

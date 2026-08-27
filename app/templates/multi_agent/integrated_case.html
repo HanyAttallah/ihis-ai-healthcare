@@ -3,92 +3,211 @@
 {% block title %}Multi-Agent iHIS{% endblock %}
 
 {% block content %}
+
 <div class="mb-4">
-    <div class="text-secondary">Multi-Agent AI</div>
+    <div class="text-secondary">
+        Multi-Agent AI
+    </div>
 
     <h1 class="h2">
-        Integrated Multi-Agent Clinical Case
+        Relevance-Selective Multi-Agent Clinical Case
     </h1>
 
     <p class="text-secondary">
-        {{ patient.full_name }} ? {{ patient.mrn }}
+        {{ patient.full_name }} &mdash; {{ patient.mrn }}
     </p>
 
     <form method="post">
         {{ form.hidden_tag() }}
-        {{ form.submit(class="btn btn-primary") }}
+
+        <div class="mb-3">
+            {{ form.scenario.label(
+                class="form-label"
+            ) }}
+
+            {{ form.scenario(
+                class="form-select"
+            ) }}
+        </div>
+
+        {{ form.submit(
+            class="btn btn-primary"
+        ) }}
     </form>
 </div>
+
 
 {% if result %}
 
 <div class="card ihis-card mb-4">
     <div class="card-body">
-        <h2 class="h4">Integrated Clinical Report</h2>
+
+        <h2 class="h4">
+            Patient / Scenario Linkage
+        </h2>
+
+        <p class="mb-1">
+            <strong>Patient:</strong>
+            {{ result.patient_context.name }}
+        </p>
+
+        <p class="mb-1">
+            <strong>MRN:</strong>
+            {{ result.patient_context.mrn }}
+        </p>
+
+        <p class="mb-0">
+            <strong>Scenario:</strong>
+            {{ result.scenario_label }}
+        </p>
+
+    </div>
+</div>
+
+
+<div class="row g-4 mb-4">
+
+    <div class="col-lg-6">
+        <div class="card ihis-card h-100">
+            <div class="card-body">
+
+                <h2 class="h5">
+                    Selected Relevant Agents
+                </h2>
+
+                <ul class="mb-0">
+                    {% for agent in result.selected_agents %}
+                        <li>{{ agent }}</li>
+                    {% endfor %}
+                </ul>
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-lg-6">
+        <div class="card ihis-card h-100">
+            <div class="card-body">
+
+                <h2 class="h5">
+                    Intentionally Skipped Agents
+                </h2>
+
+                <ul class="mb-0">
+                    {% for agent in result.skipped_agents %}
+                        <li>{{ agent }}</li>
+                    {% endfor %}
+                </ul>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="card ihis-card mb-4">
+    <div class="card-body">
+
+        <h2 class="h4">
+            Integrated Clinical Report
+        </h2>
 
         <ol class="mb-0">
             {% for item in result.integrated_summary %}
                 <li>{{ item }}</li>
             {% endfor %}
         </ol>
+
     </div>
 </div>
 
+
 <div class="card ihis-card mb-4">
     <div class="card-body">
-        <h2 class="h4">Agent Communication Log</h2>
+
+        <h2 class="h4">
+            Agent Communication / Selection Log
+        </h2>
 
         <ol class="mb-0">
             {% for item in result.communication_log %}
                 <li>{{ item }}</li>
             {% endfor %}
         </ol>
+
     </div>
 </div>
+
 
 <div class="row g-3">
 
-{% set agents = [
-    ("Receptionist AI", result.receptionist.recommended_service),
-    ("GP AI", result.gp.predicted_condition),
-    ("ICU AI", result.icu.status),
-    ("Radiologist AI", result.radiology.prediction),
-    ("Clinical Reasoning AI", result.reasoning.leading_diagnosis),
-    ("Emergency AI", result.emergency.triage),
-    ("Pharmacist AI", result.pharmacy.safety_status),
-    ("Psychiatrist AI", result.mental_health.depression_result),
-    ("Oncologist AI", result.oncology.leading_pathway or "No dominant pathway"),
-    ("Treatment Planning AI", result.treatment.recommended_strategy)
-] %}
+    {% for agent in result.agent_cards %}
 
-{% for name, value in agents %}
-<div class="col-md-6">
-    <div class="card ihis-card h-100">
-        <div class="card-body">
-            <h2 class="h5">{{ name }}</h2>
-            <p class="mb-0">{{ value }}</p>
+        <div class="col-md-6">
+
+            <div class="card ihis-card h-100">
+                <div class="card-body">
+
+                    <h2 class="h5">
+                        {{ agent.name }}
+                    </h2>
+
+                    <p class="mb-0">
+                        {{ agent.value }}
+                    </p>
+
+                </div>
+            </div>
+
         </div>
+
+    {% endfor %}
+
+</div>
+
+
+<div class="card ihis-card mt-4">
+    <div class="card-body">
+
+        <h2 class="h5">
+            Cross-Agent Conflict Check
+        </h2>
+
+        <ul class="mb-0">
+            {% for note in result.conflict_notes %}
+                <li>{{ note }}</li>
+            {% endfor %}
+        </ul>
+
     </div>
 </div>
-{% endfor %}
 
-<div class="col-md-12">
-    <div class="card ihis-card">
-        <div class="card-body">
-            <h2 class="h5">Patient Education AI</h2>
 
-            <p class="mb-0">
-                {{ result.education.answer }}
-            </p>
-        </div>
+<div class="card ihis-card mt-4">
+    <div class="card-body">
+
+        <h2 class="h5">
+            Uncertainty and Scope
+        </h2>
+
+        <ul class="mb-0">
+            {% for note in result.uncertainty_notes %}
+                <li>{{ note }}</li>
+            {% endfor %}
+        </ul>
+
     </div>
 </div>
 
-</div>
 
 <div class="card ihis-card mt-4 mb-4">
     <div class="card-body">
-        <h2 class="h5">Multi-Agent Traceability</h2>
+
+        <h2 class="h5">
+            Multi-Agent Traceability
+        </h2>
 
         <p class="mb-1">
             <strong>System:</strong>
@@ -99,12 +218,15 @@
             <strong>Version:</strong>
             {{ result.system_version }}
         </p>
+
     </div>
 </div>
+
 
 <div class="alert alert-warning">
     {{ result.disclaimer }}
 </div>
 
 {% endif %}
+
 {% endblock %}
