@@ -1,9 +1,14 @@
 import os
 from datetime import date
 
+from werkzeug.security import generate_password_hash
+
 from app import create_app
 from app.extensions import db
 from app.models import Patient, Role, User
+
+
+DEMO_PASSWORD_METHOD = "pbkdf2:sha256:600000"
 
 
 def seed_public_demo():
@@ -39,20 +44,25 @@ def seed_public_demo():
             db.select(User).filter_by(username=username)
         ).scalar_one_or_none()
 
+        password_hash = generate_password_hash(
+            password,
+            method=DEMO_PASSWORD_METHOD,
+        )
+
         if user is None:
             user = User(
                 username=username,
                 email=email,
                 role=administrator_role,
+                password_hash=password_hash,
             )
-            user.set_password(password)
             db.session.add(user)
             db.session.flush()
         else:
             user.email = email
             user.role = administrator_role
             user.is_active_user = True
-            user.set_password(password)
+            user.password_hash = password_hash
             db.session.flush()
 
         patient = db.session.execute(
