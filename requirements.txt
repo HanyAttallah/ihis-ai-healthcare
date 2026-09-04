@@ -29,11 +29,14 @@ WTForms==3.2.2
 # Production-style WSGI server for the public educational demo
 gunicorn>=23.0,<24.0
 
-# AI / ML modules
+# AI / ML modules used at runtime
 joblib>=1.3
 numpy>=1.26
 openai>=2.0
 pandas>=2.2
 Pillow>=10.0
 scikit-learn>=1.5
-torch>=2.2
+
+# PyTorch is intentionally omitted from this low-memory deployment branch.
+# The frozen/main academic source retains the genuine PyTorch Week 4 CNN.
+# Public inference uses the same trained CNN weights with a NumPy runtime.
